@@ -8,6 +8,8 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Date;
@@ -41,17 +43,49 @@ public class UniformInvoicePrizeUtils
         return dt.toDate();
     }
 
-    private String getTitle(Document doc){
+    private String getTitle(Document doc) {
         Element h2 = doc.select("#area1 h2:nth-child(2)").first();
         return h2.text();
     }
 
-    private InvoiceWinningNumbersDeclaration createInvoiceWinningNumbersDeclaration(Document doc){
+    private InvoiceWinningNumbersDeclaration createInvoiceWinningNumbersDeclaration(Document doc) {
         String title = getTitle(doc);
         int year = getYear(title);
         Date startMonth = getStartMonth(title, year);
         Date endMonth = getEndMonth(title, year);
         return new InvoiceWinningNumbersDeclaration(startMonth, endMonth);
+    }
+
+    private void setInvoiceWinningNumbersDeclaration(InvoiceWinningNumbersDeclaration declaration, Iterator<Element> tds) {
+        int cnt = 0;
+        List<String> firstPrizes = declaration.getFirstPrizes();
+
+        while (tds.hasNext()) {
+            cnt++;
+            String val = tds.next().text();
+
+            switch (cnt) {
+                case 2:
+                    setPrizesData(declaration.getSpecialPrizes(), val);
+                    break;
+                case 4:
+                    setPrizesData(declaration.getGrandPrizes(), val);
+                    break;
+                case 6:
+                    setPrizesData(firstPrizes, val);
+
+                    for (String prize : firstPrizes) {
+                        declaration.getAddSixPrizes().add(prize.substring(5));
+                    }
+                    break;
+                case 18:
+                    setPrizesData(declaration.getAddSixPrizes(), val);
+                    break;
+                default:
+                    break;
+            }
+            declaration.setFirstPrizes(firstPrizes);
+        }
     }
 
     public InvoiceWinningNumbersDeclaration getInvoiceWinningNumbersDeclaration() {
@@ -66,43 +100,15 @@ public class UniformInvoicePrizeUtils
             // Get first table
             Element table = doc.select("table").first();
             // Get td Iterator
-            Iterator<Element> ite = table.select("td").iterator();
-            // Print content
+            Iterator<Element> tds = table.select("td").iterator();
+            setInvoiceWinningNumbersDeclaration(declaration, tds);
 
-            int cnt = 0;
-            List<String> firstPrizes = declaration.getFirstPrizes();
-
-            while (ite.hasNext()) {
-                cnt++;
-                String val = ite.next().text();
-
-                switch (cnt) {
-                    case 2:
-                        setPrizesData(declaration.getSpecialPrizes(), val);
-                        break;
-                    case 4:
-                        setPrizesData(declaration.getGrandPrizes(), val);
-                        break;
-                    case 6:
-                        setPrizesData(firstPrizes, val);
-
-                        for (String prize : firstPrizes) {
-                            declaration.getAddSixPrizes().add(prize.substring(5));
-                        }
-                        break;
-                    case 18:
-                        setPrizesData(declaration.getAddSixPrizes(), val);
-                        break;
-                    default:
-                        break;
-                }
-                declaration.setFirstPrizes(firstPrizes);
-
-            }
-            LOGGER.info(declaration.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (MalformedURLException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
+        LOGGER.info(declaration.toString());
 
         return declaration;
     }
