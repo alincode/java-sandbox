@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Date;
@@ -88,26 +87,22 @@ public class UniformInvoicePrizeUtils
         }
     }
 
-    public InvoiceWinningNumbersDeclaration getInvoiceWinningNumbersDeclaration() {
+    /**
+     * 取得統一發票中獎號碼公告
+     */
+    public InvoiceWinningNumbersDeclaration getInvoiceWinningNumbersDeclaration() throws IOException {
 
-        InvoiceWinningNumbersDeclaration declaration = null;
-        try {
-            URL url = new URL("http://invoice.etax.nat.gov.tw/");
+        URL url = new URL("http://invoice.etax.nat.gov.tw/");
 
-            // Create the Document Object
-            Document doc = Jsoup.parse(url, 3000);
-            declaration = createInvoiceWinningNumbersDeclaration(doc);
-            // Get first table
-            Element table = doc.select("table").first();
-            // Get td Iterator
-            Iterator<Element> tds = table.select("td").iterator();
-            setInvoiceWinningNumbersDeclaration(declaration, tds);
+        // Create the Document Object
+        Document doc = Jsoup.parse(url, 3000);
+        Element firstTable = doc.select("table").first();
 
-        } catch (MalformedURLException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        // Get td Iterator
+        Iterator<Element> tds = firstTable.select("td").iterator();
+
+        InvoiceWinningNumbersDeclaration declaration = createInvoiceWinningNumbersDeclaration(doc);
+        setInvoiceWinningNumbersDeclaration(declaration, tds);
         LOGGER.info(declaration.toString());
 
         return declaration;
