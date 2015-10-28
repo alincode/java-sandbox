@@ -4,17 +4,7 @@ import idv.domain.InvoiceWinningNumbersDeclaration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.exceptions.base.MockitoException;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-//@RunWith(MockitoJUnitRunner.class)
 public class UniformInvoicePrizeUtilsTest {
 
     private UniformInvoicePrizeUtils uniformInvoicePrizeUtils;
@@ -32,4 +22,5 @@ public class UniformInvoicePrizeUtilsTest {
         Assert.assertEquals(3, declaration.getFirstPrizes().size());
         Assert.assertEquals(true, declaration.getAddSixPrizes().size() >= 3);
     }
+
 }

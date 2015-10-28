@@ -20,6 +20,8 @@ public class UniformInvoicePrizeUtils
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniformInvoicePrizeUtils.class);
 
+    URL prizeUrl;
+
     private int getYear(String title) {
         return Integer.parseInt(title.substring(0, 3)) + 1911;
     }
@@ -28,7 +30,7 @@ public class UniformInvoicePrizeUtils
         DateTime dt = new DateTime();
         dt.withYear(year);
         dt.withMonthOfYear(Integer.parseInt(title.substring(4, 6)));
-        dt.withDayOfMonth(01);
+        dt.withDayOfMonth(1);
         dt.withTime(0, 0, 0, 0);
         return dt.toDate();
     }
@@ -92,10 +94,10 @@ public class UniformInvoicePrizeUtils
      */
     public InvoiceWinningNumbersDeclaration getInvoiceWinningNumbersDeclaration() throws IOException {
 
-        URL url = new URL("http://invoice.etax.nat.gov.tw/");
+        prizeUrl = new URL("http://invoice.etax.nat.gov.tw/");
 
         // Create the Document Object
-        Document doc = Jsoup.parse(url, 3000);
+        Document doc = Jsoup.parse(prizeUrl, 3000);
         Element firstTable = doc.select("table").first();
 
         // Get td Iterator
@@ -117,5 +119,9 @@ public class UniformInvoicePrizeUtils
         } else {
             Collections.addAll(Prizes, val.split(" ")[0]);
         }
+    }
+
+    public void setPrizeUrl(URL prizeUrl) {
+        this.prizeUrl = prizeUrl;
     }
 }
