@@ -1,0 +1,73 @@
+// Default tasks
+defaultTasks 'hello', 'exampleForHowToUseMethod'
+
+// gradle -q hello
+task hello {
+    doLast {
+        println 'Hello World!'
+    }
+}
+
+// A shortcut task definition
+task hello2 << {
+    println 'Hello World!'
+}
+
+// Task dependencies
+task eat << {
+    println 'Grab some food'
+}
+
+task eatRice(dependsOn: eat) << {
+    println 'I choose rice.'
+}
+
+// println 'Hello World!'
+task upper << {
+    String something = 'abc'
+    println "old :" + something
+    println "new :" + something.toUpperCase()
+
+}
+
+task count << {
+    3.times { println "$it" }
+}
+
+// Dynamic tasks
+4.times { counter ->
+    task "task$counter" << {
+        println "I'm task number $counter"
+        //   gradle -q task1
+    }
+}
+
+// Manipulating existing tasks
+task0.dependsOn task2, task3
+
+// Using methods
+task exampleForHowToUseMethod << {
+    println callMyNmae('Alin')
+}
+
+String callMyNmae(name) {
+    "My name is $name"
+}
+
+// Configure by DAG
+task distribution << {
+    println "We build the zip with version=$version"
+}
+
+task release(dependsOn: 'distribution') << {
+    println 'We release now'
+}
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.invocation.Gradle.html#org.gradle.api.invocation.Gradle:taskGraph
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(release)) {
+        version = '1.0'
+    } else {
+        version = '1.0-SNAPSHOT'
+    }
+}
